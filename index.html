@@ -4,10 +4,12 @@
   <meta charset="UTF-8">
   <title>D3v4 Multi-level Drill-down Chart</title>
   <script src="https://d3js.org/d3.v4.js"></script>
-  <script src="//d3js.org/d3-scale-chromatic.v0.3.min.js"></script>
 </head>
 <body>
   <div id="graph-container"></div>
+<div id="tooltip">
+          <p><b><span id="section"> </span></b> </p>
+        </div>
   
   <script type="text/javascript">
   
@@ -20,7 +22,7 @@
 
 
         var subsubDatavcrCali = [
-            {colorIndex: 12, value: 5350, label: "Alameda"},
+            {colorIndex: 12, value: 5350, label: "Alameda 5350"},
             {colorIndex: 9, value: 6883, label: "Alpine"},
             {colorIndex: 10, value: 2300, label: "Amador"},
             {colorIndex: 11, value: 2637, label: "Butte"}
@@ -435,18 +437,30 @@
                 .each(function(d){
                     this._current = d;
                 })
-                .on("mouseover", function () {
+                .on("mouseover", function (event) {
                     //return false;
                     d3.select(this).transition()
                         .duration(100)
                         .ease(d3.easeQuadOut)
                         .attr("d", arcOver);
+d3.select("#tooltip")
+            .style("left", "500px")
+            .style("top", "200px")
+            .style("opacity", 1)
+            .style("position", "absolute")
+            .select("#section")
+            .text(event.data.value + " cases");
+
+
+
                 }).on("mouseout", function () {
                 //return false;
                 d3.select(this).transition()
                     .duration(500)
                     .ease(d3.easeBounceOut)
                     .attr("d", arc);
+  d3.select("#tooltip")
+          .style("opacity", 0);;
             }).on("click", zoomIn);
             path = pathEnterUpdate;
             return pathEnterUpdate;
