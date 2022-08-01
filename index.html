@@ -3,26 +3,132 @@
 <head>
   <meta charset="UTF-8">
   <title>D3v4 Multi-level Drill-down Chart</title>
+<style>
+
+    body{        
+        padding-top: 60px;
+        padding-bottom: 40px;
+    }
+    .container{
+        width: 80%;
+        margin: 0 auto; /* Center the DIV horizontally */
+    }
+    .fixed-header, .fixed-footer{
+        width: 100%;
+        position: fixed;        
+        background: #333;
+        padding: 10px 0;
+        color: #fff;
+    }
+    .fixed-header{
+        top: 0;
+    }
+    .fixed-footer{
+        bottom: 0;
+    }    
+    
+    nav a{
+        color: #fff;
+        text-decoration: none;
+        padding: 7px 25px;
+        display: inline-block;
+    }
+    .container p{
+        line-height: 200px; /* Create scrollbar to test positioning */
+    }
+</style>
+
   <script src="https://d3js.org/d3.v4.js"></script>
+<script src="https://rawgit.com/susielu/d3-annotation/master/d3-annotation.min.js"></script>
+
 </head>
 <body>
+    <div class="fixed-header">
+        <div class="container">
+            <nav>
+                <a href="#">USA Health Concerns (2007-2011)</a>
+		<a href="#"></a>
+		<a href="#"></a>
+		<a href="#"></a>
+		<a href="#"></a>
+		<a href="#"></a>
+		<a href="#"></a>
+		<a href="#"></a>
+              <a href="#">&copy; Suruchi Sinha | Data Visualization | 2022</a>
+            </nav>
+        </div>
+    </div> 
+              <div style="position: relative">
+                <p style="position: fixed; bottom: 0; top: 70%; width:100%; font-weight:bold; text-align: center"> Chart narrates the top civil health concerns plaguing various states in the USA. Click on any section of the piechart to get the average number of cases for the year 2007- 2011.
+                </p>
+            </div>
+
+            <div id="outerRingText" style="position: relative">
+                <p style="position: fixed; bottom: 0; top: 60%; left: 20%; width:100%"> Click outer ring --> Back 
+                </p>
+            </div>
   <div id="graph-container"></div>
 <div id="tooltip">
           <p><b><span id="section"> </span></b> </p>
+          <p><b><span id="details"> </span></b> </p>
+          <p><b><span id="additionaldetails"> </span></b> </p>
+
         </div>
   
   <script type="text/javascript">
+
+const annotations = [
+  {
+    note: {
+      label: "Number of cases:",
+      title: "Annotation"
+    },
+    x: 300,
+    y: 300,
+    
+  }
+]
+
   
     var defVis = {};
+    var textVC = "Exposure to violent crime appears to be an important social determinant of cardiovascular health within the broader context of the ways in which structural racism harms health. Rise in any type of violent crime is concerning as it may identify neighborhoods where residents are especially vulnerable to worsening cardiovascular health in the years to come.";
+    var textSTD = "The current rise of STDs is a serious public health concern that requires immediate attention. If left untreated, STDs can lead to severe health complications, including pelvic inflammatory disease, increased risk of getting HIV, certain cancers, and even infertility.";
+    var textUnemp = "Unemployment has consistently been found to have a negative impact on a range of health outcomes. Reviews have found links between unemployment and self-rated health, with worse effects for men and those unemployed due to health, and ameliorated by strong social networks.";
+
+ var textVCCali = "Top states that have violent crime as health concern. Average number of cases in California are listed above.";
+    var textSTDCali = "Top states that have STD as health concern. Average number of cases in California are listed above.";
+    var textUnempCali = "Top states that have Unemployment as health concern. Average number of cases in California are listed above.";
+
+var textVCTex = "Top states that have violent crime as health concern. Average number of cases in Texas are listed above.";
+    var textSTDTex = "Top states that have STD as health concern. Average number of cases in Texas are listed above.";
+    var textUnempTex = "Top states that have Unemployment as health concern. Average number of cases in Texas are listed above.";
+
+var textVCFlo = "Top states that have violent crime as health concern. Average number of cases in Florida are listed above.";
+    var textSTDFlo = "Top states that have STD as health concern. Average number of cases in Florida are listed above.";
+    var textUnempFlo = "Top states that have Unemployment as health concern. Average number of cases in Florida are listed above.";
+
+var textVCMary = "Top states that have violent crime as health concern. Average number of cases in Maryland are listed above.";
+    var textSTDMary = "Top states that have STD as health concern. Average number of cases in Maryland are listed above.";
+    var textUnempMary = "Top states that have Unemployment as health concern. Average number of cases in Maryland are listed above.";
+
+var textVCMass = "Top states that have violent crime as health concern. Average number of cases in Massachusetts are listed above.";
+    var textSTDMass = "Top states that have STD as health concern. Average number of cases in Massachusetts are listed above.";
+    var textUnempMass = "Top states that have Unemployment as health concern. Average number of cases in Massachusetts are listed above.";
+
+var topMostItem = "";
+
+//Page heading
+// var page head = {label: "USA Civil Concerns"};
+
 
     (function (visualization){
         visualization.donut = {};
 
-        var topLevelItem = {label: "Source"};
+        var topLevelItem = {label: "Civil Concerns"};
 
 
         var subsubDatavcrCali = [
-            {colorIndex: 12, value: 5350, label: "Alameda 5350"},
+            {colorIndex: 12, value: 5350, label: "Alameda"},
             {colorIndex: 9, value: 6883, label: "Alpine"},
             {colorIndex: 10, value: 2300, label: "Amador"},
             {colorIndex: 11, value: 2637, label: "Butte"}
@@ -30,9 +136,9 @@
 
         var subsubDatavcrMass = [
             {colorIndex: 12, value: 3218, label: "Barnstable"},
-            {colorIndex: 9, value: 3046, label: "Berkshire"},
+            {colorIndex: 9, value: 1649, label: "Dukes"},
             {colorIndex: 10, value: 4199, label: "Bristol"},
-            {colorIndex: 11, value: 1649, label: "Dukes"},
+            {colorIndex: 11, value: 3046, label: "Berkshire"},
             {colorIndex: 14, value: 2587, label: "Essex"}
         ];
 
@@ -68,9 +174,9 @@
 
         var subsubDatastdMass = [
             {colorIndex: 12, value: 792, label: "Barnstable"},
-            {colorIndex: 9, value: 1239, label: "Berkshire"},
+            {colorIndex: 9, value: 748, label: "Dukes"},
             {colorIndex: 10, value: 1160, label: "Bristol"},
-            {colorIndex: 11, value: 748, label: "Dukes"},
+            {colorIndex: 11, value: 1239, label: "Berkshire"},
             {colorIndex: 14, value: 1448, label: "Essex"}
         ];
 
@@ -165,7 +271,7 @@
         ];
 
         var data = [
-            {colorIndex: 0, value: 3223, childData: subDatavcr, label: "Violent crime rate"},
+            {colorIndex: 0, value: 3223, childData: subDatavcr, label: "Violent Crime"},
             {colorIndex: 1, value: 2051, childData: subDatastd, label: "STDs"},
             {colorIndex: 2, value: 3823, childData: subDataunem, label: "Unemployment"}
         ];
@@ -443,23 +549,107 @@
                         .duration(100)
                         .ease(d3.easeQuadOut)
                         .attr("d", arcOver);
+//this is the tooltip used
 d3.select("#tooltip")
             .style("left", "500px")
             .style("top", "200px")
             .style("opacity", 1)
             .style("position", "absolute")
             .select("#section")
-            .text(event.data.value + " cases");
+            .text("Number of cases(avg)- " + event.data.value);
+var textToShow = "";
+var additionaltextToShow = "";
+if(selectedPath.length == 0){
+topMostItem = event.data.label;
+}
+console.log(topMostItem);
+if(topMostItem == "STDs"){
+textToShow = textSTD;
+}else if(topMostItem == "Violent Crime"){
+textToShow = textVC;
+}
+else{
+textToShow = textUnemp;
+}
+if(selectedPath.length == 1){
+if(topMostItem == "STDs"){
+	if(event.data.label == "Massachusetts"){
+		additionaltextToShow = textSTDMass;
+	}else if(event.data.label == "California"){
+		additionaltextToShow = textSTDCali;
 
+	}else if(event.data.label == "Maryland"){
+		additionaltextToShow = textSTDMary;
 
+	}else if(event.data.label == "Texas"){
+		additionaltextToShow = textSTDTex;
 
+	}else{
+		additionaltextToShow = textSTDFlo;
+
+	}
+}else if(topMostItem == "Violent Crime"){
+if(event.data.label == "Massachusetts"){
+		additionaltextToShow = textVCMass;
+	}else if(event.data.label == "California"){
+		additionaltextToShow = textVCCali;
+
+	}else if(event.data.label == "Maryland"){
+		additionaltextToShow = textVCMary;
+
+	}else if(event.data.label == "Texas"){
+		additionaltextToShow = textVCTex;
+
+	}else{
+		additionaltextToShow = textVCFlo;
+
+	}
+}
+else{
+if(event.data.label == "Massachusetts"){
+		additionaltextToShow = textUnempMass;
+	}else if(event.data.label == "California"){
+		additionaltextToShow = textUnempCali;
+
+	}else if(event.data.label == "Maryland"){
+		additionaltextToShow = textUnempMary;
+
+	}else if(event.data.label == "Texas"){
+		additionaltextToShow = textUnempTex;
+
+	}else{
+		additionaltextToShow = textUnempFlo;
+
+	}
+}
+}
+d3.select("#tooltip")
+            .style("left", "500px")
+            .style("top", "200px")
+            .style("opacity", 1)
+            .style("position", "absolute")
+            .select("#details")
+            .text("" + textToShow);
+
+d3.select("#tooltip")
+            .style("left", "500px")
+            .style("top", "200px")
+            .style("opacity", 1)
+            .style("position", "absolute")
+            .select("#additionaldetails")
+            .style("opacity", 1)
+            .text("" + additionaltextToShow);
                 }).on("mouseout", function () {
                 //return false;
                 d3.select(this).transition()
                     .duration(500)
                     .ease(d3.easeBounceOut)
                     .attr("d", arc);
-  d3.select("#tooltip")
+  d3.select("#section")
+          .style("opacity", 100);;
+  d3.select("#details")
+          .style("opacity", 100);;
+  d3.select("#additionaldetails")
           .style("opacity", 0);;
             }).on("click", zoomIn);
             path = pathEnterUpdate;
@@ -537,8 +727,13 @@ d3.select("#tooltip")
 
         function getCurrentItem(){
             if(selectedPath.length === 0){
+		d3.select("#outerRingText").style("opacity", 0);
                 return topLevelItem;
-            }
+
+            }else{
+			d3.select("#outerRingText").style("opacity", 100);
+
+		}
             var currentItem = data;
             for (var i = 0; i < selectedPath.length; i++){
                 if(i + 1 < selectedPath.length){
